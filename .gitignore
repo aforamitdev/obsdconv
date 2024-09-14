@@ -159,3 +159,5 @@
 !convert/testdata/pathdbget/**
 !convert/testdata/transformexternallink
 !convert/testdata/transformexternallink/**
+
+output

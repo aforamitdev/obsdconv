@@ -85,6 +85,7 @@ func (c *bodyConverterImpl) ConvertBody(raw []rune, selfRelativePath string) (ou
 			return nil, nil, errors.Wrap(err, "CommentEraser failed")
 		}
 	}
+
 	if c.link {
 		db := c.db
 		if c.formatLink {
@@ -92,9 +93,11 @@ func (c *bodyConverterImpl) ConvertBody(raw []rune, selfRelativePath string) (ou
 			db = convert.WrapForTrimmingSuffixMd(db)
 			db = convert.WrapForEncodingPaths(db)
 		}
+
 		if c.pathPrefixRemap != nil {
 			db = convert.WrapForRemappingPathPrefix(c.pathPrefixRemap, db)
 		}
+
 		output, err = convert.NewLinkConverter(db, c.anchorFormattingStyle).Convert(output)
 		if err != nil {
 			return nil, nil, errors.Wrap(err, "LinkConverter failed")

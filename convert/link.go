@@ -55,6 +55,7 @@ func (f *pathDbImpl) Get(fileId string) (path string, err error) {
 
 	bestscore := -1
 	bestmatch := ""
+
 	for _, pth := range paths {
 		if score := pathMatchScore(pth, filename); score < 0 {
 			continue
@@ -69,6 +70,7 @@ func (f *pathDbImpl) Get(fileId string) (path string, err error) {
 		return "", nil
 	}
 	path, err = filepath.Rel(f.vault, bestmatch)
+
 	if err != nil {
 		return "", newErrTransformf(ERR_KIND_UNEXPECTED, "filepath.Rel failed: %v", err)
 	}

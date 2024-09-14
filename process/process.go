@@ -44,6 +44,7 @@ func (p *ProcessorImpl) Process(relativePath, orgpath, newpath string) error {
 			return err
 		}
 		defer newfile.Close()
+
 		io.Copy(newfile, file)
 		return nil
 	}
@@ -59,7 +60,6 @@ func (p *ProcessorImpl) Process(relativePath, orgpath, newpath string) error {
 	readFrom.Close()
 
 	yml, body := splitMarkdown([]rune(string(content)))
-
 	if ok, err := p.ExamineYaml(yml); err != nil {
 		return errors.Wrap(err, "failed to examine yaml front mattter")
 	} else if !ok {

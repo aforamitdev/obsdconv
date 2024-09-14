@@ -3,6 +3,7 @@ package convert
 import (
 	"fmt"
 	"net/url"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -24,6 +25,7 @@ func TransformInternalLinkFunc(t InternalLinkTransformer) TransformerFunc {
 		if advance == 0 {
 			return 0, nil, nil
 		}
+
 		link, err := t.TransformInternalLink(content)
 		if err != nil {
 			return 0, nil, errors.Wrap(err, "genExternalLink failed in TransformInternalLinkFunc")
@@ -33,6 +35,7 @@ func TransformInternalLinkFunc(t InternalLinkTransformer) TransformerFunc {
 }
 
 func defaultTransformInternalLinkFunc(db PathDB, anchorFormattingStyle string) TransformerFunc {
+
 	return TransformInternalLinkFunc(newInternalLinkTransformerImpl(db, anchorFormattingStyle))
 }
 
@@ -92,6 +95,7 @@ func TransformInternalLinkToPlain(raw []rune, ptr int) (advance int, tobewritten
 	}
 
 	linktext := buildLinkText(displayName, fileId, fragments)
+	fmt.Println(linktext, "TEST")
 	return advance, []rune(linktext), nil
 }
 
@@ -163,7 +167,11 @@ func (t *InternalLinkTransformerImpl) TransformInternalLink(content string) (ext
 		ref = path + "#" + anchor
 	}
 
-	return fmt.Sprintf("[%s](%s)", linktext, ref), nil
+	refSlice := strings.Split(ref, "/")
+
+	finalLink := strings.Join(refSlice[:len(refSlice)-1], "/")
+	fmt.Println(finalLink)
+	return fmt.Sprintf("[%s](%s)", linktext, "../../"+finalLink), nil
 }
 
 type EmbedsTransformer interface {
@@ -186,6 +194,7 @@ func (t *EmbedsTransformerImpl) TransformEmbeds(content string) (emnbeddedLink s
 	}
 
 	identifier, displayName := splitDisplayName(content)
+
 	fileId, fragments, err := splitFragments(identifier)
 	if err != nil {
 		return "", errors.Wrap(err, "splitFragments failed")
@@ -202,8 +211,12 @@ func (t *EmbedsTransformerImpl) TransformEmbeds(content string) (emnbeddedLink s
 	} else {
 		ref = path + "#" + formatAnchor(fragments[len(fragments)-1])
 	}
-
-	return fmt.Sprintf("![%s](%s)", linktext, ref), nil
+	ext := filepath.Ext(ref)
+	if ext != ".md" {
+		ref = strings.Join(strings.Split(ref, "/")[1:], "/")
+	}
+	formatPath := fmt.Sprintf("![%s](%s)", linktext, ref)
+	return formatPath, nil
 }
 
 type ExternalLinkTransformer interface {
